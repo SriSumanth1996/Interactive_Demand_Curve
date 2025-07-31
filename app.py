@@ -24,21 +24,33 @@ response = supabase.table("iphone_demand").select("*").execute()
 df = pd.DataFrame(response.data)
 if not df.empty:
     st.subheader("📊 Live Demand Histogram")
-    chart = (
+    
+    # Create binned data with averages
+    binned_data = (
         alt.Chart(df)
         .mark_bar()
+        .add_selection(
+            alt.selection_interval(bind='scales', encodings=['x', 'y'])
+        )
+        .transform_bin(
+            'binned_price', field='price', bin=alt.Bin(maxbins=30)
+        )
+        .transform_aggregate(
+            count='count()',
+            avg_price='mean(price)',
+            groupby=['binned_price']
+        )
         .encode(
-            x=alt.X("price:Q", 
-                   bin=alt.Bin(maxbins=30), 
-                   title="Price (₹)",
+            x=alt.X('avg_price:Q', 
+                   title="Average Price in Bin (₹)",
                    axis=alt.Axis(labelAngle=-90, format='.0f')),
-            y=alt.Y("count()", 
+            y=alt.Y('count:Q', 
                    title="Number of Students",
                    axis=alt.Axis(tickMinStep=1)),
         )
         .properties(height=400)
     )
-    st.altair_chart(chart, use_container_width=True)
+    st.altair_chart(binned_data, use_container_width=True)
     st.subheader("📈 Summary Stats")
     st.write(f"Average WTP: ₹{df['price'].mean():,.0f}")
     st.write(f"Median WTP: ₹{df['price'].median():,.0f}")
