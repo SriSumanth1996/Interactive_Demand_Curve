@@ -14,7 +14,7 @@ st.title("📱 iPhone 16 Demand Survey")
 st.markdown("**How much are you willing to pay for the iPhone 16?**")
 
 # --- Input Section ---
-price = st.number_input("Enter your price (₹)", min_value=10000, max_value=300000, step=500)
+price = st.number_input("Enter your price (₹)", min_value=50000, max_value=200000, step=500)
 
 submitted = False
 if st.button("Submit"):
@@ -25,17 +25,17 @@ if st.button("Submit"):
     else:
         st.error("❌ Something went wrong.")
 
-# --- Fetch Data After Submission ---
+# --- Fetch Data ---
 response = supabase.table("iphone_demand").select("*").execute()
 df = pd.DataFrame(response.data)
 
-# --- Define Fixed Bins from ₹10k to ₹3L in ₹500 steps ---
-bins = list(range(10000, 30500, 500))  # bin edges
-bin_labels = [f"{b}-{b+499}" for b in bins[:-1]]
+# --- Define histogram bins from ₹50,000 to ₹200,000 in ₹500 intervals ---
+bin_edges = list(range(50000, 200500, 500))
+bin_labels = [f"{b}-{b+499}" for b in bin_edges[:-1]]
 
-# --- Bin the Data ---
+# --- Prepare Histogram Data ---
 if not df.empty:
-    df["bin"] = pd.cut(df["price"], bins=bins, labels=bin_labels, right=False)
+    df["bin"] = pd.cut(df["price"], bins=bin_edges, labels=bin_labels, right=False)
     histogram = (
         df["bin"]
         .value_counts()
@@ -47,13 +47,15 @@ if not df.empty:
 else:
     histogram = pd.DataFrame({"range": bin_labels, "count": [0]*len(bin_labels)})
 
-# --- Plot Histogram ---
+# --- Plot Histogram with custom tick labels every ₹10k ---
+xticks = [f"{i:,}" for i in range(50000, 200001, 10000)]
+
 st.subheader("📊 Live Demand Histogram")
 chart = (
     alt.Chart(histogram)
     .mark_bar()
     .encode(
-        x=alt.X("range:N", title="Price Range (₹)", sort=bin_labels),
+        x=alt.X("range:N", title="Price Range (₹)", sort=bin_labels, axis=alt.Axis(values=xticks, labelAngle=-45)),
         y=alt.Y("count:Q", title="Number of Students"),
     )
     .properties(height=400)
