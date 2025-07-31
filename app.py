@@ -14,7 +14,7 @@ st.title("📱 iPhone 16 Demand Survey")
 st.markdown("**How much are you willing to pay for the iPhone 16?**")
 
 # --- Input Section ---
-price = st.number_input("Enter your price (₹)", min_value=10000, max_value=300000, step=500)
+price = st.number_input("Enter your price (₹)", min_value=50000, max_value=200000, step=500)
 
 submitted = False
 if st.button("Submit"):
