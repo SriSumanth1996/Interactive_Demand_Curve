@@ -9,6 +9,11 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 st.set_page_config(page_title="iPhone 16 Demand", layout="centered")
 st.title("📱 iPhone 16 Demand Survey")
 st.markdown("**How much are you willing to pay for the iPhone 16?**")
+st.markdown("""
+**📝 Please Note:**
+1. Please enter only once
+2. Enter in steps of 500 i.e., 65000, 65500...
+""")
 # --- Input Section ---
 price = st.number_input("Enter your price (₹)", min_value=50000, max_value=200000, step=500)
 submitted = False
@@ -25,32 +30,20 @@ df = pd.DataFrame(response.data)
 if not df.empty:
     st.subheader("📊 Live Demand Histogram")
     
-    # Create binned data with averages
-    binned_data = (
+    chart = (
         alt.Chart(df)
         .mark_bar()
-        .add_selection(
-            alt.selection_interval(bind='scales', encodings=['x', 'y'])
-        )
-        .transform_bin(
-            'binned_price', field='price', bin=alt.Bin(maxbins=30)
-        )
-        .transform_aggregate(
-            count='count()',
-            avg_price='mean(price)',
-            groupby=['binned_price']
-        )
         .encode(
-            x=alt.X('avg_price:Q', 
-                   title="Average Price in Bin (₹)",
-                   axis=alt.Axis(labelAngle=-90, format='.0f')),
-            y=alt.Y('count:Q', 
+            x=alt.X("price:Q", 
+                   title="Price (₹)",
+                   axis=alt.Axis(labelAngle=-90, format='.0f', tickMinStep=500)),
+            y=alt.Y("count()", 
                    title="Number of Students",
                    axis=alt.Axis(tickMinStep=1)),
         )
         .properties(height=400)
     )
-    st.altair_chart(binned_data, use_container_width=True)
+    st.altair_chart(chart, use_container_width=True)
     st.subheader("📈 Summary Stats")
     st.write(f"Average WTP: ₹{df['price'].mean():,.0f}")
     st.write(f"Median WTP: ₹{df['price'].median():,.0f}")
