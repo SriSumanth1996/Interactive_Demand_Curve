@@ -19,10 +19,10 @@ price = st.number_input("Enter your price (₹)", min_value=10000, max_value=300
 
 if st.button("Submit"):
     response = supabase.table("iphone_demand").insert({"price": int(price)}).execute()
-    if response.status_code == 201:
-        st.success("Your response has been recorded!")
+    if response.data:
+        st.success("✅ Your response has been recorded!")
     else:
-        st.error("Something went wrong.")
+        st.error("❌ Something went wrong.")
 
 # --- Fetch and Plot Data ---
 response = supabase.table("iphone_demand").select("*").execute()
