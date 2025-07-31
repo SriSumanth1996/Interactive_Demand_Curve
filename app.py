@@ -12,10 +12,10 @@ st.markdown("**How much are you willing to pay for the iPhone 16?**")
 st.markdown("""
 **📝 Please Note:**
 1. Please enter only once
-2. Enter in steps of 500 i.e., 65000, 65500...
+2. Enter in steps of 1000 i.e., 65000, 66000...
 """)
 # --- Input Section ---
-price = st.number_input("Enter your price (₹)", min_value=50000, max_value=200000, step=500)
+price = st.number_input("Enter your price (₹)", min_value=50000, max_value=150000, step=1000)
 submitted = False
 if st.button("Submit"):
     response = supabase.table("iphone_demand").insert({"price": int(price)}).execute()
@@ -36,7 +36,7 @@ if not df.empty:
         .encode(
             x=alt.X("price:Q", 
                    title="Price (₹)",
-                   axis=alt.Axis(labelAngle=-90, format='.0f', tickMinStep=500)),
+                   axis=alt.Axis(labelAngle=-90, format='.0f', tickMinStep=1000)),
             y=alt.Y("count()", 
                    title="Number of Students",
                    axis=alt.Axis(tickMinStep=1)),
