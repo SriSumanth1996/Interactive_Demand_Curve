@@ -13,7 +13,7 @@ st.markdown("""
 **📝 Please Note:**
 1. Please enter only once
 2. Enter in steps of 1000 i.e., 65000, 66000...
-3. Min is 50000 to Max 150000
+3. Min 50000 to Max 150000
 """)
 # --- Input Section ---
 price = st.number_input("Enter your price (₹)", min_value=50000, max_value=150000, step=1000)
