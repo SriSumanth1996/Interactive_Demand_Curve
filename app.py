@@ -11,8 +11,8 @@ st.title("📱 iPhone 16 Demand Survey")
 st.markdown("**How much are you willing to pay for the iPhone 16?**")
 st.markdown("""
 **📝 Please Note:**
-1. Please enter only once
-2. Enter in steps of 1000 i.e., 65000, 66000...
+1. Please enter the amount only once
+2. Enter the amount in steps of 1000 i.e., 65000, 66000...
 3. Min 50000 to Max 150000
 """)
 # --- Input Section ---
