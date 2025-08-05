@@ -54,20 +54,21 @@ if not df.empty:
     )
     # Update to step line
     fig.update_traces(mode='lines', line_shape='hv')  # 'hv' creates a step-after effect
-    # Customize x-axis to start at 0 and show integers
+    # Customize x-axis with fixed range and ticks
     fig.update_xaxes(
-        range=[0, price_counts['cumulative_count'].max()],  # Start x-axis at 0
-        tick0=0,  # Start ticks at 0
-        dtick=1,  # Integer steps
+        range=[0, 100],  # Fixed range from 0 to 100
+        tickmode='array',  # Use explicit tick values
+        tickvals=[0, 20, 40, 60, 80, 100],  # Fixed integer ticks
+        ticktext=['0', '20', '40', '60', '80', '100'],  # Corresponding labels
         tickformat='.0f',  # No decimals
-        tickmode='auto',  # Let Plotly decide number of ticks
-        nticks=5  # Suggest ~5 ticks to avoid clutter
+        title='Cumulative Number of Students'
     )
     # Customize y-axis
     fig.update_yaxes(
         tick0=50000,  # Start at min price
         dtick=10000,  # Steps of 10,000 for price
-        tickformat=',.0f'  # No decimals, with comma for thousands
+        tickformat=',.0f',  # No decimals, with comma for thousands
+        title='Price (₹)'
     )
     # Set chart height and make it responsive
     fig.update_layout(height=400)
