@@ -60,6 +60,11 @@ if not df.empty:
             y=alt.Y('price:Q', 
                     title='Price (₹)',
                     axis=alt.Axis(format='.0f', tickMinStep=1000)),
+            tooltip=[
+                alt.Tooltip('price:Q', title='Price', format='₹,.0f'),
+                alt.Tooltip('count:Q', title='Students at this price'),
+                alt.Tooltip('cumulative_count:Q', title='Total students')
+            ]
         )
         .properties(height=400)
     )
