@@ -15,11 +15,12 @@ st.markdown("""
 **📝 Please Note:**
 1. Please enter the amount only once
 2. Enter the amount in steps of 1000 i.e., 65000, 66000...
-3. Min 50000 to Max 150000
+3. Min 1000 to Max 150000
+4. If you enter any value greater than 150000, it will be considered as 150000
 """)
 
 # --- Input Section ---
-price = st.number_input("Enter your price (₹)", min_value=50000, max_value=150000, step=1000)
+price = st.number_input("Enter your price (₹)", min_value=1000, max_value=150000, step=1000)
 submitted = False
 if st.button("Submit"):
     response = supabase.table("iphone_demand").insert({"price": int(price)}).execute()
