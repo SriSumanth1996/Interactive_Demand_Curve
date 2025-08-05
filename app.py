@@ -2,10 +2,12 @@ import streamlit as st
 from supabase import create_client, Client
 import pandas as pd
 import plotly.express as px
+
 # Load from Streamlit secrets
 SUPABASE_URL = st.secrets["supabase"]["url"]
 SUPABASE_KEY = st.secrets["supabase"]["key"]
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+
 st.set_page_config(page_title="iPhone 16 Demand", layout="centered")
 st.title("📱 iPhone 16 Demand Survey")
 st.markdown("**How much are you willing to pay for the iPhone 16?**")
@@ -16,6 +18,7 @@ st.markdown("""
 3. Min 1000 to Max 150000
 4. If you enter any value greater than 150000, it will be considered as 150000
 """)
+
 # --- Input Section ---
 price = st.number_input("Enter your price (₹)", min_value=1000, max_value=150000, step=1000)
 submitted = False
@@ -26,9 +29,11 @@ if st.button("Submit"):
         submitted = True
     else:
         st.error("❌ Something went wrong.")
+
 # --- Fetch Data After Submission ---
 response = supabase.table("iphone_demand").select("*").execute()
 df = pd.DataFrame(response.data)
+
 if not df.empty:
     st.subheader("📊 Cumulative Demand Curve")
     # Process data for cumulative demand
@@ -49,7 +54,12 @@ if not df.empty:
         labels={'cumulative_count': 'Cumulative Number of Students', 'price': 'Price (₹)'}
     )
     # Update to step line
-    fig.update_traces(mode='lines', line_shape='hv')  # 'hv' creates a step-after effect
+    fig.update_traces(mode='lines+markers+text', line_shape='hv', textposition='top center')
+    # Add coordinates as text labels
+    fig.update_traces(
+        text=price_counts.apply(lambda row: f"({int(row['cumulative_count'])}, {int(row['price']):,})", axis=1),
+        textfont=dict(size=10)
+    )
     # Customize x-axis to start at 0 and show every integer tick
     max_count = int(price_counts['cumulative_count'].max())  # Get max cumulative count as integer
     fig.update_xaxes(
