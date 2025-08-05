@@ -11,6 +11,7 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 st.set_page_config(page_title="iPhone 16 Demand", layout="centered")
 st.title("📱 iPhone 16 Demand Survey")
 st.markdown("**How much are you willing to pay for the iPhone 16?**")
+
 st.markdown("""
 **📝 Please Note:**
 1. Please enter the amount only once
@@ -20,6 +21,7 @@ st.markdown("""
 
 # --- Input Section ---
 price = st.number_input("Enter your price (₹)", min_value=50000, max_value=150000, step=1000)
+
 submitted = False
 if st.button("Submit"):
     response = supabase.table("iphone_demand").insert({"price": int(price)}).execute()
@@ -35,16 +37,18 @@ df = pd.DataFrame(response.data)
 
 if not df.empty:
     st.subheader("📊 Cumulative Demand Curve")
-
+    
     # Process data for cumulative demand
     # Count occurrences of each price
     price_counts = df['price'].value_counts().reset_index()
     price_counts.columns = ['price', 'count']
+    
     # Sort by price in descending order
     price_counts = price_counts.sort_values('price', ascending=False)
+    
     # Calculate cumulative sum of counts
     price_counts['cumulative_count'] = price_counts['count'].cumsum()
-
+    
     # Create step chart
     chart = (
         alt.Chart(price_counts)
@@ -52,19 +56,21 @@ if not df.empty:
         .encode(
             x=alt.X('cumulative_count:Q', 
                     title='Cumulative Number of Students',
-                    axis=alt.Axis(tickMinStep=1.0)),  # Set step size to 1
+                    axis=alt.Axis(tickMinStep=1, format='d')),
             y=alt.Y('price:Q', 
                     title='Price (₹)',
                     axis=alt.Axis(format='.0f', tickMinStep=1000)),
         )
         .properties(height=400)
     )
+    
     st.altair_chart(chart, use_container_width=True)
-
+    
     st.subheader("📈 Summary Stats")
     st.write(f"Average WTP: ₹{df['price'].mean():,.0f}")
     st.write(f"Median WTP: ₹{df['price'].median():,.0f}")
     st.write(f"Most Common WTP: ₹{df['price'].mode()[0]:,.0f}")
+
 elif submitted:
     st.info("Fetching data...")
 else:
