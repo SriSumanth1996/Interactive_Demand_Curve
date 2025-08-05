@@ -13,10 +13,10 @@ st.title("📱 iPhone 16 Demand Survey")
 st.markdown("**How much are you willing to pay for the iPhone 16?**")
 st.markdown("""
 **📝 Please Note:**
-1. Please enter the amount only once
-2. Enter the amount in steps of 1000 i.e., 65000, 66000...
-3. Min 1000 to Max 150000
-4. If you enter any value greater than 150000, it will be considered as 150000
+1. Please enter the amount only once  
+2. Enter the amount in steps of 1000 i.e., 65000, 66000...  
+3. Min ₹1,000 to Max ₹1,50,000  
+4. If you enter any value greater than ₹1,50,000, it will be considered as ₹1,50,000  
 """)
 
 # --- Input Section ---
@@ -36,12 +36,14 @@ df = pd.DataFrame(response.data)
 
 if not df.empty:
     st.subheader("📊 Cumulative Demand Curve")
-    # Process data for cumulative demand
+    
     # Count occurrences of each price
     price_counts = df['price'].value_counts().reset_index()
     price_counts.columns = ['price', 'count']
+    
     # Sort by price in descending order
     price_counts = price_counts.sort_values('price', ascending=False)
+    
     # Calculate cumulative sum of counts
     price_counts['cumulative_count'] = price_counts['count'].cumsum()
     
@@ -53,39 +55,49 @@ if not df.empty:
         title='Cumulative Demand Curve',
         labels={'cumulative_count': 'Cumulative Number of Students', 'price': 'Price (₹)'}
     )
-    # Update to step line with markers and text at knee points
+    
+    # Update to step line and static knee point labels
     fig.update_traces(
-        mode='lines+markers+text', 
-        line_shape='hv',  # Step-after effect
-        text=price_counts.apply(lambda row: f"({int(row['cumulative_count'])}, {int(row['price']):,})", axis=1),
-        textposition='top center',  # Place text above points
+        mode='lines+markers+text',
+        line_shape='hv',
+        text=price_counts.apply(lambda row: f"({int(row['cumulative_count'])}, ₹{int(row['price']):,})", axis=1),
+        textposition='top center',
         textfont=dict(size=10),
-        marker=dict(size=8)  # Add markers for clarity at knee points
+        marker=dict(size=8),
+        hoverinfo='skip'  # Disable hovering
     )
-    # Customize x-axis to start at 0 and show every integer tick
-    max_count = int(price_counts['cumulative_count'].max())  # Get max cumulative count as integer
+
+    # Customize x-axis
+    max_count = int(price_counts['cumulative_count'].max())
     fig.update_xaxes(
-        range=[0, max_count + 0.5],  # Extend range slightly to ensure last tick is visible
-        tickmode='array',  # Use array mode to specify exact ticks
-        tickvals=list(range(0, max_count + 1)),  # Show every integer from 0 to max_count
-        ticktext=list(range(0, max_count + 1)),  # Display integers as tick labels
-        tickformat='.0f'  # No decimals
+        range=[0, max_count + 0.5],
+        tickmode='array',
+        tickvals=list(range(0, max_count + 1)),
+        ticktext=list(range(0, max_count + 1)),
+        tickformat='.0f'
     )
+    
     # Customize y-axis
     fig.update_yaxes(
-        tick0=50000,  # Start at min price
-        dtick=10000,  # Steps of 10,000 for price
-        tickformat=',.0f'  # No decimals, with comma for thousands
+        tick0=50000,
+        dtick=10000,
+        tickformat=',.0f'
     )
-    # Set chart height and make it responsive
-    fig.update_layout(height=400)
+    
+    # Final layout adjustments
+    fig.update_layout(
+        height=400,
+        hovermode=False  # Completely disable hover mode
+    )
     
     st.plotly_chart(fig, use_container_width=True)
     
+    # Summary stats
     st.subheader("📈 Summary Stats")
     st.write(f"Average WTP: ₹{df['price'].mean():,.0f}")
     st.write(f"Median WTP: ₹{df['price'].median():,.0f}")
     st.write(f"Most Common WTP: ₹{df['price'].mode()[0]:,.0f}")
+    
 elif submitted:
     st.info("Fetching data...")
 else:
