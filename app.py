@@ -57,7 +57,7 @@ if not df.empty:
     # Customize x-axis to start at 0 and show every integer tick
     max_count = int(price_counts['cumulative_count'].max())  # Get max cumulative count as integer
     fig.update_xaxes(
-        range=[0, max_count],  # Start x-axis at 0
+        range=[0, max_count + 0.5],  # Extend range slightly to ensure last tick is visible
         tickmode='array',  # Use array mode to specify exact ticks
         tickvals=list(range(0, max_count + 1)),  # Show every integer from 0 to max_count
         ticktext=list(range(0, max_count + 1)),  # Display integers as tick labels
