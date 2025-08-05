@@ -1,7 +1,7 @@
 import streamlit as st
 from supabase import create_client, Client
 import pandas as pd
-import altair as alt
+import plotly.express as px
 
 # Load from Streamlit secrets
 SUPABASE_URL = st.secrets["supabase"]["url"]
@@ -43,22 +43,37 @@ if not df.empty:
     price_counts = price_counts.sort_values('price', ascending=False)
     # Calculate cumulative sum of counts
     price_counts['cumulative_count'] = price_counts['count'].cumsum()
-    # Create step chart
-    chart = (
-        alt.Chart(price_counts)
-        .mark_line(interpolate='step-after')
-        .encode(
-            x=alt.X('cumulative_count:Q', 
-                    title='Cumulative Number of Students',
-                    axis=alt.Axis(tickMinStep=1, format='.0f'),  # Force integer display
-                    scale=alt.Scale(domain=[0, price_counts['cumulative_count'].max()])),
-            y=alt.Y('price:Q', 
-                    title='Price (₹)',
-                    axis=alt.Axis(format='.0f', tickMinStep=1000)),
-        )
-        .properties(height=400)
+    
+    # Create step chart with Plotly
+    fig = px.line(
+        price_counts,
+        x='cumulative_count',
+        y='price',
+        title='Cumulative Demand Curve',
+        labels={'cumulative_count': 'Cumulative Number of Students', 'price': 'Price (₹)'}
     )
-    st.altair_chart(chart, use_container_width=True)
+    # Update to step line
+    fig.update_traces(mode='lines', line_shape='hv')  # 'hv' creates a step-after effect
+    # Customize x-axis to start at 0 and show integers
+    fig.update_xaxes(
+        range=[0, price_counts['cumulative_count'].max()],  # Start x-axis at 0
+        tick0=0,  # Start ticks at 0
+        dtick=1,  # Integer steps
+        tickformat='.0f',  # No decimals
+        tickmode='auto',  # Let Plotly decide number of ticks
+        nticks=5  # Suggest ~5 ticks to avoid clutter
+    )
+    # Customize y-axis
+    fig.update_yaxes(
+        tick0=50000,  # Start at min price
+        dtick=10000,  # Steps of 10,000 for price
+        tickformat=',.0f'  # No decimals, with comma for thousands
+    )
+    # Set chart height and make it responsive
+    fig.update_layout(height=400)
+    
+    st.plotly_chart(fig, use_container_width=True)
+    
     st.subheader("📈 Summary Stats")
     st.write(f"Average WTP: ₹{df['price'].mean():,.0f}")
     st.write(f"Median WTP: ₹{df['price'].median():,.0f}")
