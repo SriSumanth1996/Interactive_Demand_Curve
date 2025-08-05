@@ -2,10 +2,12 @@ import streamlit as st
 from supabase import create_client, Client
 import pandas as pd
 import plotly.express as px
+
 # Load from Streamlit secrets
 SUPABASE_URL = st.secrets["supabase"]["url"]
 SUPABASE_KEY = st.secrets["supabase"]["key"]
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+
 st.set_page_config(page_title="iPhone 16 Demand", layout="centered")
 st.title("📱 iPhone 16 Demand Survey")
 st.markdown("**How much are you willing to pay for the iPhone 16?**")
@@ -16,6 +18,7 @@ st.markdown("""
 3. Min 1000 to Max 150000
 4. If you enter any value greater than 150000, it will be considered as 150000
 """)
+
 # --- Input Section ---
 price = st.number_input("Enter your price (₹)", min_value=1000, max_value=150000, step=1000)
 submitted = False
@@ -26,9 +29,11 @@ if st.button("Submit"):
         submitted = True
     else:
         st.error("❌ Something went wrong.")
+
 # --- Fetch Data After Submission ---
 response = supabase.table("iphone_demand").select("*").execute()
 df = pd.DataFrame(response.data)
+
 if not df.empty:
     st.subheader("📊 Cumulative Demand Curve")
     # Process data for cumulative demand
@@ -61,7 +66,7 @@ if not df.empty:
     )
     # Customize y-axis
     fig.update_yaxes(
-        tick0=50000,  # Start at min price
+        tick0=1000,  # Start at min price
         dtick=10000,  # Steps of 10,000 for price
         tickformat=',.0f'  # No decimals, with comma for thousands
     )
@@ -69,6 +74,15 @@ if not df.empty:
     fig.update_layout(height=400)
     
     st.plotly_chart(fig, use_container_width=True)
+    
+    # Display knee points
+    st.subheader("📍 Knee Points")
+    st.markdown("The table below shows the price and cumulative number of students at each step in the demand curve:")
+    knee_points = price_counts[['price', 'cumulative_count']].rename(columns={
+        'price': 'Price (₹)',
+        'cumulative_count': 'Cumulative Students'
+    })
+    st.dataframe(knee_points, use_container_width=True)
     
     st.subheader("📈 Summary Stats")
     st.write(f"Average WTP: ₹{df['price'].mean():,.0f}")
