@@ -39,7 +39,6 @@ if not df.empty:
     st.subheader("📊 Cumulative Demand Curve")
     
     # Process data for cumulative demand
-    # Count occurrences of each price
     price_counts = df['price'].value_counts().reset_index()
     price_counts.columns = ['price', 'count']
     
@@ -70,6 +69,11 @@ if not df.empty:
     )
     
     st.altair_chart(chart, use_container_width=True)
+    
+    st.subheader("📈 Summary Stats")
+    st.write(f"Average WTP: ₹{df['price'].mean():,.0f}")
+    st.write(f"Median WTP: ₹{df['price'].median():,.0f}")
+    st.write(f"Most Common WTP: ₹{df['price'].mode()[0]:,.0f}")
     
     st.subheader("📊 Price and Cumulative Table")
     
