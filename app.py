@@ -49,32 +49,43 @@ if not df.empty:
     # Process data for cumulative demand
     price_counts = df['price'].value_counts().reset_index()
     price_counts.columns = ['price', 'count']
-    price_counts = price_counts.sort_values('price', ascending=True)  # Ascending for clarity
-    
-    # Calculate cumulative sum
+    price_counts = price_counts.sort_values('price', ascending=True)  # Ascending order
     price_counts['cumulative_count'] = price_counts['count'].cumsum()
     
-    # Create step chart
-    chart = (
-        alt.Chart(price_counts)
-        .mark_line(interpolate='step-after')
-        .encode(
-            x=alt.X('cumulative_count:Q', 
-                    title='Cumulative Number of Students',
-                    axis=alt.Axis(tickMinStep=1, format='d')),
-            y=alt.Y('price:Q', 
-                    title='Price (₹)',
-                    axis=alt.Axis(format='.0f', tickMinStep=1000)),
-            tooltip=[
-                alt.Tooltip('price:Q', title='Price', format='₹,.0f'),
-                alt.Tooltip('count:Q', title='Students at this price'),
-                alt.Tooltip('cumulative_count:Q', title='Total students')
-            ]
-        )
-        .properties(height=400)
-    )
+    # Debug: Show price_counts
+    st.write(f"Debug: price_counts DataFrame: {price_counts.to_dict()}")
     
-    st.altair_chart(chart, use_container_width=True)
+    # Verify data types
+    price_counts['price'] = price_counts['price'].astype(float)
+    price_counts['cumulative_count'] = price_counts['cumulative_count'].astype(float)
+    
+    # Create simplified step chart
+    try:
+        chart = (
+            alt.Chart(price_counts)
+            .mark_line(interpolate='step-after', strokeWidth=2)
+            .encode(
+                x=alt.X('cumulative_count:Q', 
+                        title='Cumulative Number of Students',
+                        axis=alt.Axis(tickMinStep=1, format='d')),
+                y=alt.Y('price:Q', 
+                        title='Price (₹)',
+                        axis=alt.Axis(format='.0f', tickMinStep=1000)),
+                tooltip=[
+                    alt.Tooltip('price:Q', title='Price', format='₹,.0f'),
+                    alt.Tooltip('count:Q', title='Students at this Price'),
+                    alt.Tooltip('cumulative_count:Q', title='Cumulative Students')
+                ]
+            )
+            .properties(
+                height=400,
+                width=600
+            )
+        )
+        st.altair_chart(chart, use_container_width=True)
+    except Exception as e:
+        st.error(f"❌ Error rendering chart: {str(e)}")
+        st.write("Debug: Chart data:", price_counts)  # Fallback display
     
     st.subheader("📊 Price and Cumulative Table")
     
@@ -85,11 +96,7 @@ if not df.empty:
     display_table['Cumulative Students'] = display_table['cumulative_count']
     final_table = display_table[['Price (₹)', 'Students at this Price', 'Cumulative Students']]
     
-    # Display table with fallback
-    try:
-        st.dataframe(final_table, use_container_width=True, hide_index=True)
-    except:
-        st.write("Debug: Table data:", final_table)  # Fallback display
+    st.dataframe(final_table, use_container_width=True, hide_index=True)
     
     # Add download button
     csv = final_table.to_csv(index=False)
@@ -100,4 +107,4 @@ if not df.empty:
         mime="text/csv"
     )
 else:
-    st.info("No data available to display the table. Please submit a price or check Supabase connection.")
+    st.info("No data available to display the table or chart. Please submit a price or check Supabase connection.")
