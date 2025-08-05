@@ -53,12 +53,14 @@ if not df.empty:
         title='Cumulative Demand Curve',
         labels={'cumulative_count': 'Cumulative Number of Students', 'price': 'Price (₹)'}
     )
-    # Update to step line
-    fig.update_traces(mode='lines+markers+text', line_shape='hv', textposition='top center')
-    # Add coordinates as text labels
+    # Update to step line with markers and text at knee points
     fig.update_traces(
+        mode='lines+markers+text', 
+        line_shape='hv',  # Step-after effect
         text=price_counts.apply(lambda row: f"({int(row['cumulative_count'])}, {int(row['price']):,})", axis=1),
-        textfont=dict(size=10)
+        textposition='top center',  # Place text above points
+        textfont=dict(size=10),
+        marker=dict(size=8)  # Add markers for clarity at knee points
     )
     # Customize x-axis to start at 0 and show every integer tick
     max_count = int(price_counts['cumulative_count'].max())  # Get max cumulative count as integer
