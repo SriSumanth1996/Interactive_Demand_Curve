@@ -2,10 +2,12 @@ import streamlit as st
 from supabase import create_client, Client
 import pandas as pd
 import altair as alt
+
 # Load from Streamlit secrets
 SUPABASE_URL = st.secrets["supabase"]["url"]
 SUPABASE_KEY = st.secrets["supabase"]["key"]
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+
 st.set_page_config(page_title="iPhone 16 Demand", layout="centered")
 st.title("📱 iPhone 16 Demand Survey")
 st.markdown("**How much are you willing to pay for the iPhone 16?**")
@@ -15,6 +17,7 @@ st.markdown("""
 2. Enter the amount in steps of 1000 i.e., 65000, 66000...
 3. Min 50000 to Max 150000
 """)
+
 # --- Input Section ---
 price = st.number_input("Enter your price (₹)", min_value=50000, max_value=150000, step=1000)
 submitted = False
@@ -25,9 +28,11 @@ if st.button("Submit"):
         submitted = True
     else:
         st.error("❌ Something went wrong.")
+
 # --- Fetch Data After Submission ---
 response = supabase.table("iphone_demand").select("*").execute()
 df = pd.DataFrame(response.data)
+
 if not df.empty:
     st.subheader("📊 Cumulative Demand Curve")
     # Process data for cumulative demand
@@ -45,7 +50,8 @@ if not df.empty:
         .encode(
             x=alt.X('cumulative_count:Q', 
                     title='Cumulative Number of Students',
-                    axis=alt.Axis(tickMinStep=1)),
+                    axis=alt.Axis(tickMinStep=1),
+                    scale=alt.Scale(domain=[0, price_counts['cumulative_count'].max()])),  # Set x-axis to start at 0
             y=alt.Y('price:Q', 
                     title='Price (₹)',
                     axis=alt.Axis(format='.0f', tickMinStep=1000)),
