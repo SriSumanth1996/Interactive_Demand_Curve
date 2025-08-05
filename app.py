@@ -50,8 +50,8 @@ if not df.empty:
         .encode(
             x=alt.X('cumulative_count:Q', 
                     title='Cumulative Number of Students',
-                    axis=alt.Axis(tickMinStep=1),
-                    scale=alt.Scale(domain=[0, price_counts['cumulative_count'].max()])),  # Set x-axis to start at 0
+                    axis=alt.Axis(tickMinStep=1, format='.0f'),  # Force integer display
+                    scale=alt.Scale(domain=[0, price_counts['cumulative_count'].max()])),
             y=alt.Y('price:Q', 
                     title='Price (₹)',
                     axis=alt.Axis(format='.0f', tickMinStep=1000)),
