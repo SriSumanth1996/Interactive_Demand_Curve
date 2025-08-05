@@ -38,6 +38,10 @@ df = pd.DataFrame(response.data)
 if not df.empty:
     st.subheader("📊 Cumulative Demand Curve")
     
+    # Debug: Display raw data to verify
+    st.write("Debug: Raw Data from Supabase")
+    st.dataframe(df)
+    
     # Process data for cumulative demand
     price_counts = df['price'].value_counts().reset_index()
     price_counts.columns = ['price', 'count']
@@ -48,16 +52,21 @@ if not df.empty:
     # Calculate cumulative sum of counts
     price_counts['cumulative_count'] = price_counts['count'].cumsum()
     
+    # Debug: Display processed data to verify
+    st.write("Debug: Processed Price Counts Data")
+    st.dataframe(price_counts)
+    
     # Create step chart
     chart = (
         alt.Chart(price_counts)
-        .mark_line(interpolate='step-after')
+        .mark_line(interpolate='step-after', strokeWidth=2, color='#1f77b4')
         .encode(
             x=alt.X('cumulative_count:Q', 
                     title='Cumulative Number of Students',
                     axis=alt.Axis(tickMinStep=1, format='d')),
             y=alt.Y('price:Q', 
                     title='Price (₹)',
+                    scale=alt.Scale(domain=[50000, 150000]),  # Ensure y-axis covers price range
                     axis=alt.Axis(format='.0f', tickMinStep=1000)),
             tooltip=[
                 alt.Tooltip('price:Q', title='Price', format='₹,.0f'),
@@ -65,7 +74,15 @@ if not df.empty:
                 alt.Tooltip('cumulative_count:Q', title='Total students')
             ]
         )
-        .properties(height=400)
+        .properties(
+            height=400,
+            width=600
+        )
+        .configure_axis(
+            grid=True,
+            titleFontSize=14,
+            labelFontSize=12
+        )
     )
     
     st.altair_chart(chart, use_container_width=True)
