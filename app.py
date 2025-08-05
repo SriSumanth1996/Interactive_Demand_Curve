@@ -52,7 +52,7 @@ if not df.empty:
         .encode(
             x=alt.X('cumulative_count:Q', 
                     title='Cumulative Number of Students',
-                    axis=alt.Axis(tickMinStep=1)),
+                    axis=alt.Axis(tickMinStep=1.0)),  # Set step size to 1
             y=alt.Y('price:Q', 
                     title='Price (₹)',
                     axis=alt.Axis(format='.0f', tickMinStep=1000)),
