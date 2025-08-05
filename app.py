@@ -71,10 +71,18 @@ if not df.empty:
     
     st.altair_chart(chart, use_container_width=True)
     
-    st.subheader("📈 Summary Stats")
-    st.write(f"Average WTP: ₹{df['price'].mean():,.0f}")
-    st.write(f"Median WTP: ₹{df['price'].median():,.0f}")
-    st.write(f"Most Common WTP: ₹{df['price'].mode()[0]:,.0f}")
+    st.subheader("📊 Price and Cumulative Table")
+    
+    # Create display table with formatted price
+    display_table = price_counts.copy()
+    display_table['Price (₹)'] = display_table['price'].apply(lambda x: f"₹{x:,}")
+    display_table['Students at this Price'] = display_table['count']
+    display_table['Cumulative Students'] = display_table['cumulative_count']
+    
+    # Select and reorder columns for display
+    final_table = display_table[['Price (₹)', 'Students at this Price', 'Cumulative Students']]
+    
+    st.dataframe(final_table, use_container_width=True, hide_index=True)
 
 elif submitted:
     st.info("Fetching data...")
